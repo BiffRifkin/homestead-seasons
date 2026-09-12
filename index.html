@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#285d3b" />
+  <meta name="description" content="A personal year-round journal for the wildlife, plants, and seasonal life of your homestead." />
+  <title>Homestead Seasons</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="authGate" class="auth-gate">
+    <div class="auth-card">
+      <div class="auth-mark">🌿</div>
+      <div class="eyebrow">Homestead Seasons Cloud</div>
+      <h1>One homestead. Different stories.</h1>
+      <p>Sign in to share the same journal between your iPhone, iPad, and other devices.</p>
+      <form id="authForm">
+        <label>Email<input id="authEmail" type="email" autocomplete="username" required placeholder="you@example.com"></label>
+        <label>Password<input id="authPassword" type="password" autocomplete="current-password" required></label>
+        <button class="primary full" type="submit">Sign In</button>
+      </form>
+      <div id="authError" class="auth-error hidden"></div>
+      <p class="auth-note">Your password is sent directly to Supabase. It is never stored in the Homestead Seasons files.</p>
+    </div>
+  </div>
+
+  <div id="app" class="app-shell cloud-app hidden">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow" id="greeting">Good morning</div>
+        <h1>Homestead Seasons</h1>
+      </div>
+      <div class="topbar-actions">
+        <button id="syncChip" class="sync-chip" title="Sync now"><span id="syncDot">●</span><span id="syncText">Cloud</span></button>
+        <button id="addTop" class="icon-btn" aria-label="Add observation">＋</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view active" data-view="today">
+        <div class="hero card">
+          <div class="hero-copy">
+            <div class="eyebrow" id="todayDate"></div>
+            <h2>One homestead. Different stories.</h2>
+            <p>Capture wildlife, blooms, and seasonal changes as your property changes through the year.</p>
+            <button class="primary" data-action="add">＋ Add Observation</button>
+          </div>
+        </div>
+
+        <div id="cloudImportBanner" class="cloud-banner hidden">
+          <div><strong>Local observations found</strong><p id="cloudImportText">This device has observations that are not yet in the cloud.</p></div>
+          <div class="cloud-banner-actions"><button id="importLocalData" class="primary small">Import to Cloud</button><button id="dismissImport" class="secondary small">Not now</button></div>
+        </div>
+
+        <section class="section-block">
+          <div class="section-head"><h3>This Time Last Year</h3><span class="muted">preview</span></div>
+          <div class="card compact-list" id="lastYearCard"></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-head"><h3>Recently Recorded</h3><button class="link-btn" data-go="journal">See all</button></div>
+          <div id="recentList" class="stack"></div>
+        </section>
+      </section>
+
+      <section class="view" data-view="journal">
+        <div class="page-title"><div><div class="eyebrow">Every observation</div><h2>Journal</h2></div><button class="primary small" data-action="add">＋ Add</button></div>
+        <input id="journalSearch" class="search" placeholder="Search observations…" />
+        <div class="chips" id="journalFilters">
+          <button class="chip active" data-filter="All">All</button>
+          <button class="chip" data-filter="Wildlife">Wildlife</button>
+          <button class="chip" data-filter="Plant">Plants</button>
+          <button class="chip" data-filter="Seasonal/Event">Weather & Events</button>
+        </div>
+        <div id="journalList" class="stack"></div>
+      </section>
+
+      <section class="view" data-view="life">
+        <div class="page-title"><div><div class="eyebrow">Your living catalog</div><h2>Life</h2></div></div>
+        <div class="card life-summary">
+          <div><strong id="lifeSpeciesCount">0</strong><span>species / plants</span></div>
+          <div><strong id="lifePhotoCount">0</strong><span>photos</span></div>
+          <div><strong id="lifeIndividualCount">0</strong><span>individual plants</span></div>
+        </div>
+        <input id="lifeSearch" class="search" placeholder="Search species or plants…" />
+        <div class="chips" id="lifeFilters">
+          <button class="chip active" data-life="All">All</button>
+          <button class="chip" data-life="Bird">Birds</button>
+          <button class="chip" data-life="Mammal">Mammals</button>
+          <button class="chip" data-life="Other Wildlife">Other Wildlife</button>
+          <button class="chip" data-life="Tree">Trees</button>
+          <button class="chip" data-life="Shrub">Shrubs</button>
+          <button class="chip" data-life="Flower">Flowers</button>
+          <button class="chip" data-life="Other Plant">Other Plants</button>
+        </div>
+        <p class="life-hint">Tap any species or plant to open its profile, photos, milestones, zones, and observation history.</p>
+        <div id="lifeList" class="stack"></div>
+      </section>
+
+      <section class="view" data-view="seasons">
+        <div class="page-title"><div><div class="eyebrow">Patterns through the year</div><h2>Seasons</h2></div></div>
+        <div class="card season-summary">
+          <div><strong id="seasonCount">0</strong><span>milestones</span></div>
+          <div><strong id="speciesCount">0</strong><span>life tracked</span></div>
+          <div><strong id="seasonYearCount">0</strong><span>years</span></div>
+        </div>
+        <div class="season-tabs" id="seasonTabs">
+          <button class="season-tab active" data-season-tab="calendar">Calendar</button>
+          <button class="season-tab" data-season-tab="species">By Species</button>
+          <button class="season-tab" data-season-tab="year">By Year</button>
+        </div>
+        <div class="season-panel active" data-season-panel="calendar">
+          <div class="section-head"><h3>Seasonal Calendar</h3><span class="muted">milestones by month</span></div>
+          <div id="seasonCalendar" class="month-grid"></div>
+        </div>
+        <div class="season-panel" data-season-panel="species">
+          <label class="season-select-label">Choose a species or plant
+            <select id="seasonSpeciesSelect"></select>
+          </label>
+          <div id="seasonSpeciesHistory" class="stack"></div>
+        </div>
+        <div class="season-panel" data-season-panel="year">
+          <div id="seasonYearCompare" class="stack"></div>
+        </div>
+      </section>
+
+      <section class="view" data-view="property">
+        <div class="page-title"><div><div class="eyebrow">Your land, in context</div><h2>Property</h2></div></div>
+        <div class="card map-card">
+          <div class="property-map-wrap">
+            <img src="assets/property.png" alt="Overhead property map" class="property-map" />
+            <button class="zone-dot zone-home" style="left:65%;top:29%" data-zone="House & Yard">⌂<span>House & Yard</span></button>
+            <button class="zone-dot" style="left:55%;top:44%" data-zone="Side Yard">●<span>Side Yard</span></button>
+            <button class="zone-dot" style="left:42%;top:31%" data-zone="Mid Meadow">●<span>Mid Meadow</span></button>
+            <button class="zone-dot" style="left:27%;top:14%" data-zone="Upper Meadow">●<span>Upper Meadow</span></button>
+            <button class="zone-dot" style="left:24%;top:35%" data-zone='West "40"'>●<span>West &quot;40&quot;</span></button>
+            <button class="zone-dot" style="left:41%;top:50%" data-zone="West Woods">▲<span>West Woods</span></button>
+            <button class="zone-dot" style="left:72%;top:18%" data-zone="North Woods">▲<span>North Woods</span></button>
+            <button class="zone-dot" style="left:52%;top:63%" data-zone="Pond">💧<span>Pond</span></button>
+            <button class="zone-dot" style="left:55%;top:80%" data-zone="South Woods">▲<span>South Woods</span></button>
+          </div>
+        </div>
+        <div class="section-head"><h3>Property Zones</h3><span class="muted">tap a zone to explore</span></div>
+        <div id="zoneList" class="stack"></div>
+        <section id="zoneDetail" class="section-block hidden">
+          <div class="section-head"><h3 id="zoneDetailTitle">Zone observations</h3><button id="clearZone" class="link-btn">Clear</button></div>
+          <div id="zoneDetailList" class="stack"></div>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav active" data-nav="today"><span>⌂</span>Today</button>
+      <button class="nav" data-nav="journal"><span>▤</span>Journal</button>
+      <button class="nav" data-nav="life"><span>♧</span>Life</button>
+      <button class="nav" data-nav="seasons"><span>⌁</span>Seasons</button>
+      <button class="nav" data-nav="property"><span>▱</span>Property</button>
+    </nav>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-head"><div><div class="eyebrow" id="modalEyebrow">New record</div><h2 id="modalTitle">Add Observation</h2></div><button id="closeModal" class="icon-btn">×</button></div>
+      <form id="obsForm">
+        <label>What did you notice?
+          <div class="segmented">
+            <button type="button" class="seg active" data-kind="Wildlife">Wildlife</button>
+            <button type="button" class="seg" data-kind="Plant">Plant</button>
+            <button type="button" class="seg" data-kind="Seasonal/Event">Seasonal/Event</button>
+          </div>
+        </label>
+        <input type="hidden" id="kind" value="Wildlife" />
+        <label id="nameLabel">Name / species<input id="name" required placeholder="e.g. Northern Cardinal" /></label>
+        <label id="groupWrap">Life type<select id="group"></select></label>
+        <label id="individualPlantWrap" class="hidden">Specific plant / tree <span class="optional">optional</span><input id="individualPlant" placeholder="e.g. Front Porch Oakleaf Hydrangea" /></label>
+        <div class="two-col"><label>Date<input id="date" type="date" required /></label><label id="timeLabel">Time<input id="time" type="time" /></label></div>
+        <label id="eventEndTimeWrap" class="hidden">End time <span class="optional">optional</span><input id="eventEndTime" type="time" /></label>
+        <label>Property zone<select id="zone"></select></label>
+        <label>Location note <span class="optional">optional</span><input id="locationNote" placeholder="e.g. north bank near the large oak" /></label>
+        <label id="detailLabel">Activity<select id="detail"></select></label>
+        <div id="measurementWrap" class="two-col hidden"><label>Measurement <span class="optional">optional</span><input id="measurement" type="number" step="0.1" placeholder="e.g. 4.5" /></label><label>Unit<select id="measurementUnit"><option>inches</option><option>°F</option><option>°C</option><option>mph</option><option>days</option><option>other</option></select></label></div>
+        <label class="milestone-toggle"><span><strong>Seasonal milestone</strong><small>Mark first blooms, arrivals, nesting, frost, peak activity, and other annual landmarks.</small></span><input id="isMilestone" type="checkbox" /></label>
+        <label id="milestoneTypeWrap" class="hidden">Milestone type<select id="milestoneType"></select></label>
+        <label id="countWrap">Number seen / count<input id="count" type="number" min="1" value="1" /></label>
+        <label>Photo<input id="photo" type="file" accept="image/*" capture="environment" /></label>
+        <img id="photoPreview" class="photo-preview hidden" alt="Selected photo preview" />
+        <label>Notes<textarea id="notes" rows="4" placeholder="What did you notice?"></textarea></label>
+        <button class="primary full" id="saveObsBtn" type="submit">Save Observation</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="lifeBackdrop" class="modal-backdrop hidden">
+    <div class="modal life-modal">
+      <div class="modal-head"><div><div class="eyebrow" id="lifeProfileEyebrow">Life profile</div><h2 id="lifeProfileTitle">Species</h2></div><button id="closeLifeProfile" class="icon-btn">×</button></div>
+      <div id="lifeProfileContent"></div>
+    </div>
+  </div>
+
+  <div id="yearReviewBackdrop" class="modal-backdrop hidden">
+    <div class="modal year-review-modal">
+      <div class="modal-head"><div><div class="eyebrow">A year on the homestead</div><h2 id="yearReviewTitle">Year in Review</h2></div><button id="closeYearReview" class="icon-btn">×</button></div>
+      <div class="profile-actions"><button id="printYearReview" class="secondary small">Print / Save PDF</button></div>
+      <div id="yearReviewContent"></div>
+    </div>
+  </div>
+
+  <div id="accountBackdrop" class="modal-backdrop hidden">
+    <div class="modal account-modal">
+      <div class="modal-head"><div><div class="eyebrow">Cloud account</div><h2>Homestead Seasons</h2></div><button id="closeAccount" class="icon-btn">×</button></div>
+      <div class="account-details card"><span>Signed in as</span><strong id="accountEmail"></strong></div>
+      <button id="syncNow" class="primary full">Sync Now</button>
+      <button id="signOut" class="secondary full">Sign Out</button>
+      <p class="muted account-help">Cloud sync uses your private Supabase account. Local caching keeps the app usable when your connection drops.</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

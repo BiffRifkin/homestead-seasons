@@ -1,0 +1,9 @@
+{
+  "name":"Homestead Seasons",
+  "short_name":"Homestead",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#f5f7f3",
+  "theme_color":"#285d3b",
+  "icons":[{"src":"assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
