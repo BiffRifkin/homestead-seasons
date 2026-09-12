@@ -275,9 +275,28 @@ function openYearReview(year){
  $('#yearReviewBackdrop').classList.remove('hidden');
 }
 function closeYearReview(){$('#yearReviewBackdrop').classList.add('hidden')}
-function renderZones(){const counts=Object.fromEntries(ZONES.map(z=>[z,0]));observations.forEach(o=>{if(counts[o.zone]!==undefined)counts[o.zone]++});$('#zoneList').innerHTML=ZONES.map(z=>`<button class="zone-card ${selectedZone===z?'selected':''}" data-zone-card="${escapeHtml(z)}"><div class="zone-card-icon">📍</div><div class="zone-card-body"><div class="title">${escapeHtml(z)}</div><div class="zone-description">${escapeHtml(ZONE_INFO[z])}</div><div class="meta">${counts[z]||0} observation${counts[z]===1?'':'s'}</div></div><span class="chevron">›</span></button>`).join('');$$('[data-zone-card]').forEach(b=>b.onclick=()=>showZone(b.dataset.zoneCard));if(selectedZone)renderZoneDetail()}
-function showZone(z){selectedZone=z;renderZones();renderZoneDetail();$('#zoneDetail').classList.remove('hidden');$('#zoneDetail').scrollIntoView({behavior:'smooth',block:'start'})}
-function renderZoneDetail(){if(!selectedZone)return;$('#zoneDetailTitle').textContent=selectedZone;const list=[...observations].filter(o=>o.zone===selectedZone).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));$('#zoneDetailList').innerHTML=list.map(renderEntry).join('')||'<div class="empty">No observations recorded in this zone yet.</div>'}
+function renderZones(){const counts=Object.fromEntries(ZONES.map(z=>[z,0]));observations.forEach(o=>{if(counts[o.zone]!==undefined)counts[o.zone]++});$('#zoneList').innerHTML=ZONES.map(z=>`<button class="zone-card ${selectedZone===z?'selected':''}" data-zone-card="${escapeAttr(z)}"><div class="zone-card-icon">📍</div><div class="zone-card-body"><div class="title">${escapeHtml(z)}</div><div class="zone-description">${escapeHtml(ZONE_INFO[z])}</div><div class="meta">${counts[z]||0} observation${counts[z]===1?'':'s'}</div></div><span class="chevron">›</span></button>`).join('');$$('[data-zone-card]').forEach(b=>b.onclick=()=>showZone(b.dataset.zoneCard));$$('.zone-dot').forEach(b=>{const on=selectedZone===b.dataset.zone;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',on?'true':'false')});if(selectedZone)renderZoneDetail()}
+function showZone(z){selectedZone=z;renderZones();$('#zoneDetail').classList.remove('hidden');renderZoneDetail();$('#zoneDetail').scrollIntoView({behavior:'smooth',block:'start'})}
+function renderZoneDetail(){
+ if(!selectedZone)return;
+ $('#zoneDetailTitle').textContent=selectedZone;
+ const list=[...observations].filter(o=>o.zone===selectedZone).sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+ const life=list.filter(o=>o.kind!=='Seasonal/Event');
+ const speciesMap=new Map();
+ life.forEach(o=>{const key=o.name.trim().toLowerCase();if(!speciesMap.has(key))speciesMap.set(key,{name:o.name,kind:o.kind,group:o.group||inferGroup(o),count:0,last:o.date});const x=speciesMap.get(key);x.count++;if(o.date>x.last)x.last=o.date});
+ const species=[...speciesMap.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
+ const photos=list.flatMap(o=>normalizePhotoItems(o).map(p=>({...p,name:o.name,date:o.date})));
+ const milestones=list.filter(o=>o.isMilestone).length;
+ const latest=list[0];
+ $('#zoneSummary').innerHTML=`<div class="zone-summary-stat"><strong>${list.length}</strong><span>observations</span></div><div class="zone-summary-stat"><strong>${species.length}</strong><span>species / plants</span></div><div class="zone-summary-stat"><strong>${photos.length}</strong><span>photos</span></div><div class="zone-summary-stat"><strong>${milestones}</strong><span>milestones</span></div>${latest?`<div class="zone-latest"><span>Most recent</span><strong>${escapeHtml(latest.name)}</strong><small>${fmtDate(latest.date)}${latest.detail?` • ${escapeHtml(latest.detail)}`:''}</small></div>`:`<div class="zone-latest"><span>Most recent</span><strong>No observations yet</strong><small>${escapeHtml(ZONE_INFO[selectedZone]||'')}</small></div>`}`;
+ $('#zoneSpeciesCount').textContent=`${species.length} recorded`;
+ $('#zoneSpeciesList').innerHTML=species.length?species.slice(0,18).map(x=>`<button class="zone-species-chip" data-zone-species="${escapeAttr(x.name)}"><span>${lifeIcon(x.group,x.kind)}</span><strong>${escapeHtml(x.name)}</strong><small>${x.count}</small></button>`).join(''):'<div class="empty">No wildlife or plants recorded here yet.</div>';
+ $('#zonePhotoCount').textContent=`${photos.length}`;
+ $('#zonePhotoGrid').innerHTML=photos.slice(0,18).map(p=>`<button class="photo-tile" data-lightbox-url="${escapeAttr(p.url)}" data-lightbox-caption="${escapeAttr(`${p.name} — ${fmtDate(p.date)} — ${selectedZone}`)}"><img src="${escapeAttr(p.url)}" alt="${escapeAttr(p.name)}"><span>${fmtDate(p.date)}</span></button>`).join('');
+ $('#zonePhotoSection').classList.toggle('hidden',!photos.length);
+ $('#zoneDetailList').innerHTML=list.slice(0,12).map(renderEntry).join('')||'<div class="empty">No observations recorded in this zone yet. Use “Add Observation Here” to start one.</div>';
+ $$('[data-zone-species]').forEach(b=>b.onclick=()=>openLifeProfile(b.dataset.zoneSpecies));
+}
 function renderAll(){renderToday();renderJournal();renderLife();renderSeasons();renderZones()}
 function showView(name){$$('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===name));$$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.nav===name));window.scrollTo({top:0,behavior:'smooth'})}
 $$('[data-nav]').forEach(b=>b.onclick=()=>showView(b.dataset.nav));$$('[data-go]').forEach(b=>b.onclick=()=>showView(b.dataset.go));$$('[data-action="add"],#addTop').forEach(b=>b.onclick=()=>openModal());
@@ -309,14 +328,14 @@ function updateGroupOptions(){
  else opts=['Seasonal'];
  const current=$('#group').value;$('#group').innerHTML=opts.map(x=>`<option>${x}</option>`).join('');if(opts.includes(current))$('#group').value=current;
 }
-function openModal(obs=null){
+function openModal(obs=null,presetZone=''){
  resetForm();const now=new Date();editingId=obs?obs.id:null;$('#modalEyebrow').textContent=obs?'Update record':'New record';$('#modalTitle').textContent=obs?'Edit Observation':'Add Observation';$('#saveObsBtn').textContent=obs?'Save Changes':'Save Observation';
  if(obs){
    $('#kind').value=obs.kind;$$('.seg').forEach(x=>x.classList.toggle('active',x.dataset.kind===obs.kind));updateDetailOptions();updateKindFields();
    $('#name').value=obs.name;$('#group').value=obs.group||inferGroup(obs);$('#individualPlant').value=obs.individualPlant||'';$('#date').value=obs.date;$('#time').value=obs.time||'';populateZoneOptions(obs.zone);$('#locationNote').value=obs.locationNote||'';$('#detail').value=obs.detail||'';$('#count').value=obs.count||1;$('#notes').value=obs.notes||'';
    $('#measurement').value=obs.measurement??'';$('#measurementUnit').value=obs.measurementUnit||'inches';$('#eventEndTime').value=obs.eventEndTime||'';
    $('#isMilestone').checked=!!obs.isMilestone;updateMilestoneOptions();$('#milestoneTypeWrap').classList.toggle('hidden',!obs.isMilestone);if(obs.isMilestone&&obs.milestoneType)$('#milestoneType').value=obs.milestoneType;photoItems=normalizePhotoItems(obs).map(p=>({...p}));photoData=photoItems[0]?.url||'';renderPhotoPreviews();
- }else{$('#date').value=now.toISOString().slice(0,10);$('#time').value=now.toTimeString().slice(0,5)}
+ }else{$('#date').value=now.toISOString().slice(0,10);$('#time').value=now.toTimeString().slice(0,5);if(presetZone){populateZoneOptions(presetZone);$('#zone').value=presetZone}}
  $('#modalBackdrop').classList.remove('hidden')
 }
 function closeModal(){editingId=null;$('#modalBackdrop').classList.add('hidden')}
@@ -366,6 +385,7 @@ $('#seasonSpeciesSelect').addEventListener('change',()=>renderSeasonSpecies(mile
 $$('#seasonTabs .season-tab').forEach(b=>b.onclick=()=>{currentSeasonTab=b.dataset.seasonTab;$$('#seasonTabs .season-tab').forEach(x=>x.classList.toggle('active',x===b));$$('.season-panel').forEach(p=>p.classList.toggle('active',p.dataset.seasonPanel===currentSeasonTab))});
 $('#journalSearch').oninput=renderJournal;$('#lifeSearch').oninput=renderLife;$$('#journalFilters .chip').forEach(b=>b.onclick=()=>{$$('#journalFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentJournalFilter=b.dataset.filter;renderJournal()});$$('#lifeFilters .chip').forEach(b=>b.onclick=()=>{$$('#lifeFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentLifeFilter=b.dataset.life;renderLife()});
 $$('.zone-dot').forEach(b=>b.onclick=()=>showZone(b.dataset.zone));
+$('#addZoneObservation').onclick=()=>{if(selectedZone)openModal(null,selectedZone)};
 $('#clearZone').onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones()};
 function openLightbox(url,caption=''){if(!url)return;$('#lightboxImage').src=url;$('#lightboxCaption').textContent=caption;$('#lightboxBackdrop').classList.remove('hidden')}
 function closeLightbox(){$('#lightboxBackdrop').classList.add('hidden');$('#lightboxImage').src=''}
