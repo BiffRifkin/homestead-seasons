@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.7" />
+  <link rel="stylesheet" href="styles.css?v=1.8" />
 </head>
 <body>
   <div id="authGate" class="auth-gate">
@@ -30,7 +30,7 @@
       </form>
       <div id="authError" class="auth-error hidden"></div>
       <p class="auth-note">Your password is sent directly to Supabase. It is never stored in the Homestead Seasons files.</p>
-      <p class="auth-note" style="font-size:12px;opacity:.65">Build v1.7</p>
+      <p class="auth-note" style="font-size:12px;opacity:.65">Build v1.8</p>
     </div>
   </div>
 
@@ -177,7 +177,7 @@
 
   <div id="modalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
-      <div class="modal-head"><div><div class="eyebrow" id="modalEyebrow">New record</div><h2 id="modalTitle">Add Observation</h2></div><button id="closeModal" class="icon-btn">×</button></div>
+      <div class="modal-head"><div><div class="eyebrow" id="modalEyebrow">New record</div><h2 id="modalTitle">Add Observation</h2></div><button id="closeModal" class="icon-btn" type="button" aria-label="Close observation form">×</button></div>
       <form id="obsForm">
         <label>What did you notice?
           <div class="segmented">
@@ -239,7 +239,7 @@
 
   <div id="yearReviewBackdrop" class="modal-backdrop hidden">
     <div class="modal year-review-modal">
-      <div class="modal-head"><div><div class="eyebrow">A year on the homestead</div><h2 id="yearReviewTitle">Year in Review</h2></div><button id="closeYearReview" class="icon-btn">×</button></div>
+      <div class="modal-head"><div><div class="eyebrow">A year on the homestead</div><h2 id="yearReviewTitle">Year in Review</h2></div><button id="closeYearReview" class="icon-btn" type="button" aria-label="Close Year in Review">×</button></div>
       <div class="profile-actions"><button id="printYearReview" class="secondary small">Export / Save PDF</button></div>
       <div id="yearReviewContent"></div>
     </div>
@@ -247,8 +247,13 @@
 
   <div id="accountBackdrop" class="modal-backdrop hidden">
     <div class="modal account-modal">
-      <div class="modal-head"><div><div class="eyebrow">Cloud account</div><h2>Homestead Seasons</h2></div><button id="closeAccount" class="icon-btn">×</button></div>
+      <div class="modal-head"><div><div class="eyebrow">Cloud account</div><h2>Homestead Seasons</h2></div><button id="closeAccount" class="icon-btn" type="button" aria-label="Close account panel">×</button></div>
       <div class="account-details card"><span>Signed in as</span><strong id="accountEmail"></strong></div>
+      <div class="account-status-grid">
+        <div class="account-status-card"><span>Connection</span><strong id="accountConnection">Checking…</strong></div>
+        <div class="account-status-card"><span>Last synced</span><strong id="accountLastSync">Not yet</strong></div>
+        <div class="account-status-card account-status-wide"><span>Waiting to sync</span><strong id="accountPending">0 changes</strong></div>
+      </div>
       <button id="syncNow" class="primary full">Sync Now</button>
       <button id="signOut" class="secondary full">Sign Out</button>
       <p class="muted account-help">Cloud sync uses your private Supabase account. Local caching keeps the app usable when your connection drops.</p>
@@ -264,6 +269,6 @@
   </div>
 
   <div id="toast" class="toast hidden"></div>
-  <script src="app.js?v=1.7"></script>
+  <script src="app.js?v=1.8"></script>
 </body>
 </html>

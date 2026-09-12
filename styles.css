@@ -146,3 +146,33 @@ button,input,select,textarea{max-width:100%;}
  .review-photo-grid{grid-template-columns:repeat(4,1fr)}
  .review-footer{margin-top:18px}
 }
+
+
+/* v1.8 polish & stability */
+html{width:100%;max-width:100%;overflow-x:hidden;scroll-padding-top:82px;scroll-padding-bottom:96px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior-y:none}
+.app-shell{min-height:100dvh}
+.topbar{padding-top:max(18px,env(safe-area-inset-top))}
+.view{scroll-margin-top:80px}
+button,input,select,textarea{touch-action:manipulation}
+button{min-height:44px}
+input,select,textarea{font-size:16px;line-height:1.25}
+input[type="checkbox"]{font-size:initial}
+.icon-btn{min-width:44px;min-height:44px}
+.link-btn{min-height:44px;padding:8px 4px}
+.chip,.season-tab,.seg{min-height:44px}
+.nav{min-height:52px}
+.modal{padding-bottom:max(28px,calc(env(safe-area-inset-bottom) + 18px));overscroll-behavior:contain}
+.modal-backdrop{padding-top:env(safe-area-inset-top)}
+:focus-visible{outline:3px solid rgba(244,185,66,.9);outline-offset:2px}
+.primary:disabled,.secondary:disabled,.photo-pick-btn:disabled{opacity:.58;cursor:wait}
+.entry,.zone-card,.card{max-width:100%}
+.entry .body,.zone-card-body{overflow-wrap:anywhere}
+.account-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 2px}
+.account-status-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 12px;min-width:0}
+.account-status-card span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:800}
+.account-status-card strong{display:block;margin-top:4px;font-size:13px;overflow-wrap:anywhere}
+.account-status-wide{grid-column:1/-1}
+.sync-chip.offline #syncDot{color:#9a6c2e}.sync-chip.error #syncDot{color:#a43f37}.sync-chip.synced #syncDot{color:#2c7a45}
+@media(max-width:380px){.topbar{padding-left:12px;padding-right:12px}.view{padding-left:12px;padding-right:12px}.hero{padding:22px 19px}.hero h2{font-size:30px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
