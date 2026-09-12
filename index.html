@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.8" />
+  <link rel="stylesheet" href="styles.css?v=1.9" />
 </head>
 <body>
   <div id="authGate" class="auth-gate">
@@ -30,7 +30,7 @@
       </form>
       <div id="authError" class="auth-error hidden"></div>
       <p class="auth-note">Your password is sent directly to Supabase. It is never stored in the Homestead Seasons files.</p>
-      <p class="auth-note" style="font-size:12px;opacity:.65">Build v1.8</p>
+      <p class="auth-note" style="font-size:12px;opacity:.65">Build v1.9</p>
     </div>
   </div>
 
@@ -61,6 +61,18 @@
           <div><strong>Local observations found</strong><p id="cloudImportText">This device has observations that are not yet in the cloud.</p></div>
           <div class="cloud-banner-actions"><button id="importLocalData" class="primary small">Import to Cloud</button><button id="dismissImport" class="secondary small">Not now</button></div>
         </div>
+
+        <section class="section-block">
+          <div class="section-head"><h3>Weather on the Homestead</h3><button id="weatherRefresh" class="link-btn">Refresh</button></div>
+          <div id="weatherCard" class="card smart-weather-card">
+            <div class="smart-empty"><strong>Set your property weather location</strong><p>Use your device location once; Homestead Seasons will remember it on this device.</p><button id="weatherSetup" class="secondary small">Use Current Location</button></div>
+          </div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-head"><h3>Seasonal Prompts</h3><span class="muted">based on your journal</span></div>
+          <div id="seasonalPrompts" class="stack"></div>
+        </section>
 
         <section class="section-block">
           <div class="section-head"><h3>This Time Last Year</h3><span class="muted">preview</span></div>
@@ -188,9 +200,11 @@
         </label>
         <input type="hidden" id="kind" value="Wildlife" />
         <label id="nameLabel">Name / species<input id="name" required placeholder="e.g. Northern Cardinal" /></label>
+        <button id="identifyBtn" class="secondary full id-assist-btn" type="button">🔎 Help Identify Species / Plant</button>
         <label id="groupWrap">Life type<select id="group"></select></label>
         <label id="individualPlantWrap" class="hidden">Specific plant / tree <span class="optional">optional</span><input id="individualPlant" placeholder="e.g. Front Porch Oakleaf Hydrangea" /></label>
         <div class="two-col"><label>Date<input id="date" type="date" required /></label><label id="timeLabel">Time<input id="time" type="time" /></label></div>
+        <div id="obsWeatherStrip" class="obs-weather-strip hidden"><span id="obsWeatherText"></span><button id="addWeatherToNotes" class="link-btn" type="button">Add to Notes</button></div>
         <label id="eventEndTimeWrap" class="hidden">End time <span class="optional">optional</span><input id="eventEndTime" type="time" /></label>
         <label>Property zone<select id="zone"></select></label>
         <label>Location note <span class="optional">optional</span><input id="locationNote" placeholder="e.g. north bank near the large oak" /></label>
@@ -245,6 +259,16 @@
     </div>
   </div>
 
+  <div id="idBackdrop" class="modal-backdrop hidden">
+    <div class="modal id-modal">
+      <div class="modal-head"><div><div class="eyebrow">Identification assistant</div><h2>Find a Species or Plant</h2></div><button id="closeIdAssistant" class="icon-btn" type="button" aria-label="Close identification assistant">×</button></div>
+      <p class="muted">Type a tentative name or description. Suggestions come from iNaturalist taxonomy; confirm the match before saving.</p>
+      <div class="id-search-row"><input id="idSearch" class="search" placeholder="e.g. red bird, oakleaf hydrangea" /><button id="runIdSearch" class="primary small" type="button">Search</button></div>
+      <div id="idStatus" class="muted id-status"></div>
+      <div id="idResults" class="stack id-results"></div>
+    </div>
+  </div>
+
   <div id="accountBackdrop" class="modal-backdrop hidden">
     <div class="modal account-modal">
       <div class="modal-head"><div><div class="eyebrow">Cloud account</div><h2>Homestead Seasons</h2></div><button id="closeAccount" class="icon-btn" type="button" aria-label="Close account panel">×</button></div>
@@ -269,6 +293,6 @@
   </div>
 
   <div id="toast" class="toast hidden"></div>
-  <script src="app.js?v=1.8"></script>
+  <script src="app.js?v=1.9"></script>
 </body>
 </html>

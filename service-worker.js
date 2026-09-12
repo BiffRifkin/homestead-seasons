@@ -1,6 +1,6 @@
-const CACHE = 'homestead-seasons-v1.8';
+const CACHE = 'homestead-seasons-v1.9';
 const APP_SHELL = [
-  './','./index.html','./styles.css?v=1.8','./app.js?v=1.8','./manifest.json',
+  './','./index.html','./styles.css?v=1.9','./app.js?v=1.9','./manifest.json',
   './assets/property.png','./assets/icon.svg','./assets/icon-192.png','./assets/icon-512.png','./assets/apple-touch-icon.png'
 ];
 self.addEventListener('install', event => {
