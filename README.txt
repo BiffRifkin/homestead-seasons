@@ -1,4 +1,4 @@
-Homestead Seasons v1.6.1 — Property Zone Clarity Patch
+Homestead Seasons v1.6.3 — Property Zone Clarity Patch
 
 New in this version:
 - Tap a map marker or zone card to select and highlight a property zone.
@@ -12,11 +12,13 @@ New in this version:
 Upload all files in this folder to the root of the existing GitHub repository and commit the changes.
 
 
-Changes in v1.6.1:
+Changes in v1.6.3:
 - Renamed Clear to Back to Property.
 - Kept Add Observation Here visible for empty zones.
 - Added a helper note explaining that the zone is preselected.
 - Improved scrolling into empty zone detail views.
 
 
-v1.6.2: Property zone pages now show prominent Add Observation Here buttons at both the top and bottom of every zone detail view.
+v1.6.3: Property zone pages now show prominent Add Observation Here buttons at both the top and bottom of every zone detail view.
+
+Patch v1.6.3: force the selected-zone header control label to 'Back to Property' at runtime, so an older cached HTML shell cannot leave it as 'Clear'.

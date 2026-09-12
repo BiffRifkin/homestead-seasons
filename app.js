@@ -386,7 +386,12 @@ $$('#seasonTabs .season-tab').forEach(b=>b.onclick=()=>{currentSeasonTab=b.datas
 $('#journalSearch').oninput=renderJournal;$('#lifeSearch').oninput=renderLife;$$('#journalFilters .chip').forEach(b=>b.onclick=()=>{$$('#journalFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentJournalFilter=b.dataset.filter;renderJournal()});$$('#lifeFilters .chip').forEach(b=>b.onclick=()=>{$$('#lifeFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentLifeFilter=b.dataset.life;renderLife()});
 $$('.zone-dot').forEach(b=>b.onclick=()=>showZone(b.dataset.zone));
 ['#addZoneObservationTop','#addZoneObservationBottom'].forEach(sel=>{const el=$(sel);if(el)el.onclick=()=>{if(selectedZone)openModal(null,selectedZone)}});
-$('#clearZone').onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones();$('#zoneList').scrollIntoView({behavior:'smooth',block:'start'})};
+const clearZoneBtn=$('#clearZone');
+if(clearZoneBtn){
+  clearZoneBtn.textContent='Back to Property';
+  clearZoneBtn.setAttribute('aria-label','Back to Property');
+  clearZoneBtn.onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones();$('#zoneList').scrollIntoView({behavior:'smooth',block:'start'})};
+}
 function openLightbox(url,caption=''){if(!url)return;$('#lightboxImage').src=url;$('#lightboxCaption').textContent=caption;$('#lightboxBackdrop').classList.remove('hidden')}
 function closeLightbox(){$('#lightboxBackdrop').classList.add('hidden');$('#lightboxImage').src=''}
 $('#closeLightbox').onclick=closeLightbox;$('#lightboxBackdrop').addEventListener('click',e=>{if(e.target.id==='lightboxBackdrop')closeLightbox()});
