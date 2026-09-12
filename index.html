@@ -216,6 +216,20 @@
     </div>
   </div>
 
+
+  <div id="lifeEditBackdrop" class="modal-backdrop hidden">
+    <div class="modal profile-edit-modal">
+      <div class="modal-head"><div><div class="eyebrow">Life profile</div><h2>Edit Profile</h2></div><button id="closeLifeEdit" class="icon-btn">×</button></div>
+      <form id="lifeEditForm">
+        <label>Name<input id="lifeEditName" required /></label>
+        <label>Life type<select id="lifeEditGroup"></select></label>
+        <label>Scientific name <span class="optional">optional</span><input id="lifeEditScientific" placeholder="e.g. Cardinalis cardinalis" /></label>
+        <label>Profile notes <span class="optional">optional</span><textarea id="lifeEditNotes" rows="5" placeholder="General notes about this species or plant on your homestead"></textarea></label>
+        <button class="primary full" type="submit">Save Profile</button>
+      </form>
+    </div>
+  </div>
+
   <div id="yearReviewBackdrop" class="modal-backdrop hidden">
     <div class="modal year-review-modal">
       <div class="modal-head"><div><div class="eyebrow">A year on the homestead</div><h2 id="yearReviewTitle">Year in Review</h2></div><button id="closeYearReview" class="icon-btn">×</button></div>
