@@ -18,7 +18,57 @@ const LEGACY_ZONE_MAP={
 
 const SUPABASE_URL='https://tultwekwigfvcorwejgf.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1bHR3ZWt3aWdmdmNvcndlamdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMjY4MTksImV4cCI6MjEwNDgwMjgxOX0.MwTuq8BRvIGNKf8heoFWvyD-80gaPDE6KzkhULY0JAw';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let sb=null;
+let supabaseLoadPromise=null;
+function showAuthError(message){
+  const el=document.querySelector('#authError');
+  if(!el)return;
+  el.textContent=message;
+  el.classList.remove('hidden');
+}
+function loadExternalScript(src){
+  return new Promise((resolve,reject)=>{
+    const existing=[...document.scripts].find(x=>x.src===src);
+    if(existing){
+      if(window.supabase?.createClient)return resolve();
+      existing.addEventListener('load',resolve,{once:true});
+      existing.addEventListener('error',()=>reject(new Error('Could not load '+src)),{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src=src;
+    script.async=true;
+    script.onload=resolve;
+    script.onerror=()=>reject(new Error('Could not load '+src));
+    document.head.appendChild(script);
+  });
+}
+async function ensureSupabaseClient(){
+  if(sb)return sb;
+  if(supabaseLoadPromise)return supabaseLoadPromise;
+  supabaseLoadPromise=(async()=>{
+    if(!window.supabase?.createClient){
+      const sources=[
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+        'https://unpkg.com/@supabase/supabase-js@2'
+      ];
+      let lastError=null;
+      for(const src of sources){
+        try{
+          await loadExternalScript(src);
+          if(window.supabase?.createClient)break;
+        }catch(err){lastError=err;}
+      }
+      if(!window.supabase?.createClient){
+        throw lastError||new Error('Cloud login library could not be loaded.');
+      }
+    }
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    return sb;
+  })();
+  try{return await supabaseLoadPromise}
+  catch(err){supabaseLoadPromise=null;throw err}
+}
 let currentUser=null, zoneRows=[], cloudReady=false, syncing=false;
 let startupLocalUser=localStorage.getItem('hs_cloud_user_id')||'';
 let pendingOps=JSON.parse(localStorage.getItem('hs_pending_ops')||'[]');
@@ -63,7 +113,20 @@ async function loadCloudObservations(){if(!currentUser)return 0;setSyncStatus('s
 async function flushPendingOps(){if(!currentUser||!navigator.onLine||!pendingOps.length)return;const ops=[...pendingOps];for(const op of ops){let ok=false;if(op.type==='upsert')ok=await cloudUpsertObservation(op.record,{queueOnFail:false});else if(op.type==='delete')ok=await cloudDeleteObservation(op.id,{queueOnFail:false});else if(op.type==='renameSpecies')ok=await cloudRenameSpecies(op.oldName,op.newName,op.newGroup,{queueOnFail:false});else if(op.type==='renameIndividual')ok=await cloudRenameIndividual(op.speciesName,op.oldName,op.newName,{queueOnFail:false});else if(op.type==='profileUpdate')ok=await cloudUpdateLifeProfile(op.oldName,op.profile,{queueOnFail:false});if(ok){pendingOps=pendingOps.filter(x=>x!==op);cachePending()}}}
 async function importLocalToCloud(){const btn=$('#importLocalData');if(btn){btn.disabled=true;btn.textContent='Importing…'}const source=[...(startupLocalObservations||observations)];let done=0;for(const original of source){const rec={...original,id:isUuid(original.id)?original.id:newUuid()};const ok=await cloudUpsertObservation(rec,{queueOnFail:true});if(ok)done++}await loadCloudObservations();localStorage.setItem('hs_cloud_user_id',currentUser.id);$('#cloudImportBanner')?.classList.add('hidden');toast(`${done} observation${done===1?'':'s'} imported to cloud`);if(btn){btn.disabled=false;btn.textContent='Import to Cloud'}}
 async function handleSignedIn(user){currentUser=user;$('#authGate').classList.add('hidden');$('#app').classList.remove('hidden');$('#accountEmail').textContent=user.email||'';setSyncStatus(navigator.onLine?'syncing':'offline',navigator.onLine?'Loading…':'Offline');try{await loadZoneRows();await flushPendingOps();const count=await loadCloudObservations();cloudReady=true;if(count===0){const local=JSON.parse(localStorage.getItem('hs_observations')||'null');if(local?.length&&startupLocalUser!==user.id){startupLocalObservations=local;$('#cloudImportText').textContent=`This device has ${local.length} observation${local.length===1?'':'s'} that can be copied into your cloud journal.`;$('#cloudImportBanner').classList.remove('hidden')}else{localStorage.setItem('hs_cloud_user_id',user.id)}}}catch(err){console.error('Cloud load failed',err);setSyncStatus('error','Sync issue');toast('Could not load cloud data. Local records are still available.')}}
-async function initAuth(){const {data}=await sb.auth.getSession();if(data.session?.user)await handleSignedIn(data.session.user);else{$('#authGate').classList.remove('hidden');$('#app').classList.add('hidden')}}
+async function initAuth(){
+  try{
+    await ensureSupabaseClient();
+    const {data,error}=await sb.auth.getSession();
+    if(error)throw error;
+    if(data.session?.user)await handleSignedIn(data.session.user);
+    else{$('#authGate').classList.remove('hidden');$('#app').classList.add('hidden')}
+  }catch(err){
+    console.error('Cloud login initialization failed',err);
+    $('#authGate').classList.remove('hidden');
+    $('#app').classList.add('hidden');
+    showAuthError('Unable to load cloud login. Check your connection, then tap Log In to retry.');
+  }
+}
 async function refreshFromCloud(){if(!currentUser||syncing||!navigator.onLine)return;try{await loadZoneRows();await flushPendingOps();await loadCloudObservations()}catch(err){console.error(err);setSyncStatus('error','Sync issue')}}
 const seed=[
  {id:1,kind:"Wildlife",name:"Northern Cardinal",group:"Bird",date:"2026-09-11",time:"08:12",zone:"House & Yard",locationNote:"Back porch / woods edge",detail:"Feeding",count:2,notes:"Pair near the back porch and woods edge.",photo:""},
@@ -397,8 +460,29 @@ function closeLightbox(){$('#lightboxBackdrop').classList.add('hidden');$('#ligh
 $('#closeLightbox').onclick=closeLightbox;$('#lightboxBackdrop').addEventListener('click',e=>{if(e.target.id==='lightboxBackdrop')closeLightbox()});
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),1800)}
 const now=new Date();$('#todayDate').textContent=now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});$('#greeting').textContent=now.getHours()<12?'Good morning':now.getHours()<18?'Good afternoon':'Good evening';save();renderAll();
-$('#authForm').addEventListener('submit',async e=>{e.preventDefault();$('#authError').classList.add('hidden');const email=$('#authEmail').value.trim(),password=$('#authPassword').value;const {data,error}=await sb.auth.signInWithPassword({email,password});if(error){$('#authError').textContent=error.message;$('#authError').classList.remove('hidden');return}if(data.user)await handleSignedIn(data.user)});
-$('#syncChip').onclick=()=>$('#accountBackdrop').classList.remove('hidden');$('#closeAccount').onclick=()=>$('#accountBackdrop').classList.add('hidden');$('#accountBackdrop').addEventListener('click',e=>{if(e.target.id==='accountBackdrop')$('#accountBackdrop').classList.add('hidden')});$('#syncNow').onclick=async()=>{await refreshFromCloud();toast('Cloud sync complete')};$('#signOut').onclick=async()=>{await sb.auth.signOut();currentUser=null;$('#accountBackdrop').classList.add('hidden');$('#app').classList.add('hidden');$('#authGate').classList.remove('hidden');setSyncStatus('offline','Cloud')};$('#importLocalData').onclick=importLocalToCloud;$('#dismissImport').onclick=()=>$('#cloudImportBanner').classList.add('hidden');
+$('#authForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  e.stopPropagation();
+  const errorEl=$('#authError');
+  errorEl.classList.add('hidden');
+  const email=$('#authEmail').value.trim(),password=$('#authPassword').value;
+  const submit=$('#authForm button[type="submit"]');
+  if(submit){submit.disabled=true;submit.textContent='Logging In…'}
+  try{
+    await ensureSupabaseClient();
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(error)throw error;
+    if(!data.user)throw new Error('Login did not return a user account.');
+    await handleSignedIn(data.user);
+  }catch(err){
+    console.error('Login failed',err);
+    errorEl.textContent=err?.message||'Unable to log in. Please check your connection and try again.';
+    errorEl.classList.remove('hidden');
+  }finally{
+    if(submit){submit.disabled=false;submit.textContent='Log In'}
+  }
+});
+$('#syncChip').onclick=()=>$('#accountBackdrop').classList.remove('hidden');$('#closeAccount').onclick=()=>$('#accountBackdrop').classList.add('hidden');$('#accountBackdrop').addEventListener('click',e=>{if(e.target.id==='accountBackdrop')$('#accountBackdrop').classList.add('hidden')});$('#syncNow').onclick=async()=>{await refreshFromCloud();toast('Cloud sync complete')};$('#signOut').onclick=async()=>{await ensureSupabaseClient();await sb.auth.signOut();currentUser=null;$('#accountBackdrop').classList.add('hidden');$('#app').classList.add('hidden');$('#authGate').classList.remove('hidden');setSyncStatus('offline','Cloud')};$('#importLocalData').onclick=importLocalToCloud;$('#dismissImport').onclick=()=>$('#cloudImportBanner').classList.add('hidden');
 window.addEventListener('online',()=>{setSyncStatus('syncing','Reconnecting…');refreshFromCloud()});window.addEventListener('offline',()=>setSyncStatus('offline','Offline'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshFromCloud()});
 initAuth();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

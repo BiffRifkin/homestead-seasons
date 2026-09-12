@@ -1,4 +1,4 @@
-const CACHE = 'homestead-seasons-v1.6.3';
+const CACHE = 'homestead-seasons-v1.6.4';
 const APP_SHELL = [
   './',
   './index.html',
