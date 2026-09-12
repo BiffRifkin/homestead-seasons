@@ -453,7 +453,7 @@ const clearZoneBtn=$('#clearZone');
 if(clearZoneBtn){
   clearZoneBtn.textContent='Back to Property';
   clearZoneBtn.setAttribute('aria-label','Back to Property');
-  clearZoneBtn.onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones();$('#zoneList').scrollIntoView({behavior:'smooth',block:'start'})};
+  clearZoneBtn.onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones();const propertyView=document.querySelector('[data-view="property"]');const map=propertyView?.querySelector('.property-map-wrap');(map||propertyView)?.scrollIntoView({behavior:'smooth',block:'start'})};
 }
 function openLightbox(url,caption=''){if(!url)return;$('#lightboxImage').src=url;$('#lightboxCaption').textContent=caption;$('#lightboxBackdrop').classList.remove('hidden')}
 function closeLightbox(){$('#lightboxBackdrop').classList.add('hidden');$('#lightboxImage').src=''}
