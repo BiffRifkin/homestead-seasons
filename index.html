@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=1.7" />
 </head>
 <body>
   <div id="authGate" class="auth-gate">
@@ -30,7 +30,7 @@
       </form>
       <div id="authError" class="auth-error hidden"></div>
       <p class="auth-note">Your password is sent directly to Supabase. It is never stored in the Homestead Seasons files.</p>
-      <p class="auth-note" style="font-size:12px;opacity:.65">Build v1.6.6</p>
+      <p class="auth-note" style="font-size:12px;opacity:.65">Build v1.7</p>
     </div>
   </div>
 
@@ -240,7 +240,7 @@
   <div id="yearReviewBackdrop" class="modal-backdrop hidden">
     <div class="modal year-review-modal">
       <div class="modal-head"><div><div class="eyebrow">A year on the homestead</div><h2 id="yearReviewTitle">Year in Review</h2></div><button id="closeYearReview" class="icon-btn">×</button></div>
-      <div class="profile-actions"><button id="printYearReview" class="secondary small">Print / Save PDF</button></div>
+      <div class="profile-actions"><button id="printYearReview" class="secondary small">Export / Save PDF</button></div>
       <div id="yearReviewContent"></div>
     </div>
   </div>
@@ -264,6 +264,6 @@
   </div>
 
   <div id="toast" class="toast hidden"></div>
-  <script src="app.js?v=1.6.6"></script>
+  <script src="app.js?v=1.7"></script>
 </body>
 </html>

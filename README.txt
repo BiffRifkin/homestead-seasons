@@ -25,3 +25,6 @@ Patch v1.6.4: force the selected-zone header control label to 'Back to Property'
 
 
 v1.6.4 authentication hardening: prevents native form reloads, retries Supabase SDK loading from a second CDN, and always displays login errors instead of silently returning to the login form.
+
+
+v1.7: Expanded Year in Review with species/plant totals, top species and zones, seasonal bookends, bloom/arrival highlights, weather summaries, month-by-month story, photo highlights, and print-optimized PDF export.

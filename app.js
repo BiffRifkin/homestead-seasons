@@ -307,34 +307,82 @@ function renderSeasonYears(ms,years){
      <div class="year-milestones">${explicit.length?explicit.sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8).map(o=>`<div class="milestone-row"><div class="milestone-name">${escapeHtml(o.name)}</div><div class="milestone-meta">${fmtDate(o.date)} • ${escapeHtml(o.displayMilestone)}${measurementText(o)?` • ${escapeHtml(measurementText(o))}`:''}</div></div>`).join(''):'<div class="muted">No marked milestones yet. First records are still tracked automatically.</div>'}${explicit.length>8?`<div class="milestone-meta">+ ${explicit.length-8} more milestones</div>`:''}</div><button class="secondary small year-review-btn" data-year-review="${year}">Open Year in Review</button></div>`
  }).join('')||'<div class="empty">Your year-to-year comparison will grow as you add records.</div>';
 }
+let currentYearReview=null;
 function openYearReview(year){
- const obs=observations.filter(o=>o.date.startsWith(year)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+ const obs=observations.filter(o=>o.date.startsWith(year)).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
  if(!obs.length)return;
+ currentYearReview=String(year);
  const life=obs.filter(o=>o.kind!=='Seasonal/Event');
+ const wildlifeObs=obs.filter(o=>o.kind==='Wildlife');
+ const plantObs=obs.filter(o=>o.kind==='Plant');
+ const eventObs=obs.filter(o=>o.kind==='Seasonal/Event');
  const uniqueLife=new Set(life.map(o=>o.name.trim().toLowerCase())).size;
- const wildlife=obs.filter(o=>o.kind==='Wildlife').length, plants=obs.filter(o=>o.kind==='Plant').length, events=obs.filter(o=>o.kind==='Seasonal/Event').length;
- const photos=obs.flatMap(o=>normalizePhotoItems(o).map(p=>({...p,date:o.date,name:o.name})));
- const explicit=milestoneRecords().filter(o=>o.date.startsWith(year)&&!o.derived);
- const zones={};obs.forEach(o=>{if(o.zone!==EVENT_ZONE)zones[o.zone]=(zones[o.zone]||0)+1});
- const topZone=Object.entries(zones).sort((a,b)=>b[1]-a[1])[0];
+ const uniqueWildlife=new Set(wildlifeObs.map(o=>o.name.trim().toLowerCase())).size;
+ const uniquePlants=new Set(plantObs.map(o=>o.name.trim().toLowerCase())).size;
+ const photos=obs.flatMap(o=>normalizePhotoItems(o).map(p=>({...p,date:o.date,name:o.name,zone:o.zone})));
+ const allMilestones=milestoneRecords().filter(o=>o.date.startsWith(year)).sort((a,b)=>a.date.localeCompare(b.date));
+ const explicit=allMilestones.filter(o=>!o.derived);
+ const zones={};obs.forEach(o=>{if(o.zone&&o.zone!==EVENT_ZONE)zones[o.zone]=(zones[o.zone]||0)+1});
+ const topZones=Object.entries(zones).sort((a,b)=>b[1]-a[1]).slice(0,3);
+ const lifeCounts={};life.forEach(o=>{const key=o.name.trim();lifeCounts[key]=(lifeCounts[key]||0)+1});
+ const topLife=Object.entries(lifeCounts).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5);
  const counts=Array(12).fill(0);obs.forEach(o=>counts[new Date(o.date+'T12:00:00').getMonth()]++);
  const maxMonth=Math.max(1,...counts);
  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
- const snow=obs.filter(o=>o.kind==='Seasonal/Event'&&/snow/i.test(`${o.name} ${o.detail}`));
- const snowMeasured=snow.filter(o=>o.measurement!==''&&o.measurement!=null&&o.measurementUnit==='inches');
+ const fullMonthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+ const snow=eventObs.filter(o=>/snow/i.test(`${o.name} ${o.detail} ${o.milestoneType||''}`));
+ const snowMeasured=snow.filter(o=>o.measurement!==''&&o.measurement!=null&&String(o.measurementUnit).toLowerCase()==='inches');
  const snowTotal=snowMeasured.reduce((n,o)=>n+Number(o.measurement||0),0);
+ const rain=eventObs.filter(o=>/rain/i.test(`${o.name} ${o.detail} ${o.milestoneType||''}`));
+ const rainMeasured=rain.filter(o=>o.measurement!==''&&o.measurement!=null&&String(o.measurementUnit).toLowerCase()==='inches');
+ const rainTotal=rainMeasured.reduce((n,o)=>n+Number(o.measurement||0),0);
+ const tempEvents=eventObs.filter(o=>o.measurement!==''&&o.measurement!=null&&['°f','f','fahrenheit'].includes(String(o.measurementUnit||'').toLowerCase()));
+ const tempVals=tempEvents.map(o=>Number(o.measurement)).filter(Number.isFinite);
+ const frostFreeze=eventObs.filter(o=>/frost|freeze/i.test(`${o.name} ${o.detail} ${o.milestoneType||''}`));
+ const storms=eventObs.filter(o=>/storm|thunder|wind|ice/i.test(`${o.name} ${o.detail} ${o.milestoneType||''}`));
+ const bloomArrival=explicit.filter(o=>/bloom|flower|arrival|first seen|migration/i.test(`${o.displayMilestone||''} ${o.milestoneType||''} ${o.detail||''}`)).slice(0,10);
+ const firstMilestone=explicit[0]||allMilestones[0];
+ const lastMilestone=explicit[explicit.length-1]||allMilestones[allMilestones.length-1];
  const first=obs[0],last=obs[obs.length-1];
- const milestones=explicit.slice().sort((a,b)=>a.date.localeCompare(b.date));
+ const timeline=fullMonthNames.map((month,i)=>{
+   const monthObs=obs.filter(o=>new Date(o.date+'T12:00:00').getMonth()===i);
+   const monthMilestones=allMilestones.filter(o=>new Date(o.date+'T12:00:00').getMonth()===i).slice(0,3);
+   return {month,count:monthObs.length,items:monthMilestones};
+ });
+ const statCard=(value,label)=>`<div class="review-stat"><strong>${value}</strong><span>${label}</span></div>`;
+ const rankList=(items,empty='Nothing recorded yet.')=>items.length?items.map(([name,count],i)=>`<div class="review-rank-row"><span class="review-rank-num">${i+1}</span><div><strong>${escapeHtml(name)}</strong><small>${count} observation${count===1?'':'s'}</small></div></div>`).join(''):`<div class="muted">${empty}</div>`;
  $('#yearReviewTitle').textContent=`${year} Year in Review`;
  $('#yearReviewContent').innerHTML=`
-   <div class="review-hero"><h3>${year} on the Homestead</h3><p>${obs.length} recorded moment${obs.length===1?'':'s'} from ${fmtDate(first.date)} through ${fmtDate(last.date)}.</p></div>
-   <div class="review-stats"><div class="review-stat"><strong>${obs.length}</strong><span>observations</span></div><div class="review-stat"><strong>${uniqueLife}</strong><span>species / plants</span></div><div class="review-stat"><strong>${explicit.length}</strong><span>milestones</span></div><div class="review-stat"><strong>${photos.length}</strong><span>photos</span></div></div>
-   <section class="review-section"><h3>What you recorded</h3><div class="review-breakdown"><div><strong>${wildlife}</strong><span>wildlife</span></div><div><strong>${plants}</strong><span>plants</span></div><div><strong>${events}</strong><span>weather / events</span></div></div></section>
-   ${topZone?`<section class="review-section"><h3>Most active zone</h3><div class="review-list-item"><strong>${escapeHtml(topZone[0])}</strong><span>${topZone[1]} observation${topZone[1]===1?'':'s'} recorded there</span></div></section>`:''}
-   ${snow.length?`<section class="review-section"><h3>Winter weather</h3><div class="review-list-item"><strong>${snow.length} snowfall${snow.length===1?'':'s'}</strong><span>${snowMeasured.length?`${snowTotal.toFixed(1).replace(/\.0$/,'')} inches of recorded snow`: 'No snowfall amounts entered yet'}</span></div></section>`:''}
+   <div class="review-cover">
+     <div class="review-cover-kicker">Homestead Seasons</div>
+     <h3>${year} on the Homestead</h3>
+     <p>${obs.length} recorded moment${obs.length===1?'':'s'} from ${fmtDate(first.date)} through ${fmtDate(last.date)}.</p>
+     <div class="review-cover-line">One homestead. Different stories.</div>
+   </div>
+   <div class="review-stats review-stats-six">
+     ${statCard(obs.length,'observations')}${statCard(uniqueLife,'species / plants')}${statCard(uniqueWildlife,'wildlife species')}${statCard(uniquePlants,'plant species')}${statCard(explicit.length,'milestones')}${statCard(photos.length,'photos')}
+   </div>
+   <section class="review-section"><h3>What you recorded</h3><div class="review-breakdown"><div><strong>${wildlifeObs.length}</strong><span>wildlife</span></div><div><strong>${plantObs.length}</strong><span>plants</span></div><div><strong>${eventObs.length}</strong><span>weather / events</span></div></div></section>
+   <div class="review-two-col">
+     <section class="review-section"><h3>Most frequently observed</h3><div class="review-rank-list">${rankList(topLife)}</div></section>
+     <section class="review-section"><h3>Most active zones</h3><div class="review-rank-list">${rankList(topZones,'No zoned observations yet.')}</div></section>
+   </div>
+   <section class="review-section"><h3>Seasonal bookends</h3><div class="review-bookends">
+     <div><span>First milestone</span>${firstMilestone?`<strong>${escapeHtml(firstMilestone.name)} — ${escapeHtml(firstMilestone.displayMilestone)}</strong><small>${fmtDate(firstMilestone.date)} • ${escapeHtml(firstMilestone.zone)}</small>`:'<strong>Not yet recorded</strong>'}</div>
+     <div><span>Last milestone</span>${lastMilestone?`<strong>${escapeHtml(lastMilestone.name)} — ${escapeHtml(lastMilestone.displayMilestone)}</strong><small>${fmtDate(lastMilestone.date)} • ${escapeHtml(lastMilestone.zone)}</small>`:'<strong>Not yet recorded</strong>'}</div>
+   </div></section>
+   ${bloomArrival.length?`<section class="review-section"><h3>Bloom & arrival highlights</h3><div class="review-list">${bloomArrival.map(o=>`<div class="review-list-item"><strong>${escapeHtml(o.name)} — ${escapeHtml(o.displayMilestone)}</strong><span>${fmtDate(o.date)} • ${escapeHtml(o.zone)}</span></div>`).join('')}</div></section>`:''}
+   <section class="review-section"><h3>Weather at a glance</h3><div class="weather-review-grid">
+     <div><strong>${snow.length}</strong><span>snowfall event${snow.length===1?'':'s'}</span><small>${snowMeasured.length?`${snowTotal.toFixed(1).replace(/\.0$/,'')} in recorded snow`:'No snow totals entered'}</small></div>
+     <div><strong>${rain.length}</strong><span>rainfall event${rain.length===1?'':'s'}</span><small>${rainMeasured.length?`${rainTotal.toFixed(1).replace(/\.0$/,'')} in recorded rain`:'No rain totals entered'}</small></div>
+     <div><strong>${frostFreeze.length}</strong><span>frost / freeze event${frostFreeze.length===1?'':'s'}</span><small>${storms.length} storm / wind / ice event${storms.length===1?'':'s'}</small></div>
+     <div><strong>${tempVals.length?`${Math.min(...tempVals)}°–${Math.max(...tempVals)}°`:'—'}</strong><span>recorded temperature range</span><small>${tempVals.length?'from weather observations':'Add measured °F events to track'}</small></div>
+   </div></section>
    <section class="review-section"><h3>Activity through the year</h3><div class="month-bars">${counts.map((n,i)=>`<div class="month-bar-row"><span>${monthNames[i]}</span><div class="month-bar-track"><div class="month-bar-fill" style="width:${Math.round(n/maxMonth*100)}%"></div></div><strong>${n}</strong></div>`).join('')}</div></section>
-   <section class="review-section"><h3>Seasonal milestones</h3><div class="review-list">${milestones.length?milestones.map(o=>`<div class="review-list-item"><strong>${escapeHtml(o.name)} — ${escapeHtml(o.displayMilestone)}</strong><span>${fmtDate(o.date)} • ${escapeHtml(o.zone)}${measurementText(o)?` • ${escapeHtml(measurementText(o))}`:''}</span></div>`).join(''):'<div class="empty">No marked milestones this year yet.</div>'}</div></section>
-   ${photos.length?`<section class="review-section"><h3>Photo memories</h3><div class="review-photo-grid">${photos.slice(0,12).map(p=>`<button class="review-photo-btn" data-lightbox-url="${escapeAttr(p.url)}" data-lightbox-caption="${escapeAttr(`${p.name} — ${fmtDate(p.date)}`)}"><img src="${escapeAttr(p.url)}" alt="${escapeAttr(p.name)} — ${fmtDate(p.date)}"></button>`).join('')}</div>${photos.length>12?`<div class="milestone-meta" style="margin-top:7px">+ ${photos.length-12} more photos in the Journal</div>`:''}</section>`:''}`;
+   <section class="review-section"><h3>Month-by-month story</h3><div class="review-month-grid">${timeline.map(m=>`<div class="review-month-card ${m.count?'':'quiet'}"><div class="review-month-head"><strong>${m.month}</strong><span>${m.count} record${m.count===1?'':'s'}</span></div>${m.items.length?m.items.map(o=>`<div class="review-month-item"><b>${escapeHtml(o.name)}</b><small>${fmtDate(o.date)} • ${escapeHtml(o.displayMilestone)}</small></div>`).join(''):'<small class="muted">No seasonal highlights recorded.</small>'}</div>`).join('')}</div></section>
+   <section class="review-section"><h3>Seasonal milestones</h3><div class="review-list">${explicit.length?explicit.map(o=>`<div class="review-list-item"><strong>${escapeHtml(o.name)} — ${escapeHtml(o.displayMilestone)}</strong><span>${fmtDate(o.date)} • ${escapeHtml(o.zone)}${measurementText(o)?` • ${escapeHtml(measurementText(o))}`:''}</span></div>`).join(''):'<div class="empty">No marked milestones this year yet.</div>'}</div></section>
+   ${photos.length?`<section class="review-section"><h3>Photo highlights</h3><div class="review-photo-grid">${photos.slice(0,12).map(p=>`<button class="review-photo-btn" data-lightbox-url="${escapeAttr(p.url)}" data-lightbox-caption="${escapeAttr(`${p.name} — ${fmtDate(p.date)}`)}"><img src="${escapeAttr(p.url)}" alt="${escapeAttr(p.name)} — ${fmtDate(p.date)}"></button>`).join('')}</div>${photos.length>12?`<div class="milestone-meta" style="margin-top:7px">+ ${photos.length-12} more photos in the Journal</div>`:''}</section>`:''}
+   <div class="review-footer">Homestead Seasons • ${year} Year in Review</div>`;
  $('#yearReviewBackdrop').classList.remove('hidden');
 }
 function closeYearReview(){$('#yearReviewBackdrop').classList.add('hidden')}
@@ -405,7 +453,7 @@ function closeModal(){editingId=null;$('#modalBackdrop').classList.add('hidden')
 $('#closeModal').onclick=closeModal;$('#modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop')closeModal()});
 $('#closeLifeProfile').onclick=closeLifeProfile;$('#lifeBackdrop').addEventListener('click',e=>{if(e.target.id==='lifeBackdrop')closeLifeProfile()});
 $('#closeLifeEdit').onclick=()=>$('#lifeEditBackdrop').classList.add('hidden');$('#lifeEditBackdrop').addEventListener('click',e=>{if(e.target.id==='lifeEditBackdrop')$('#lifeEditBackdrop').classList.add('hidden')});$('#lifeEditForm').addEventListener('submit',async e=>{e.preventDefault();const oldName=editingLifeProfileName,newName=$('#lifeEditName').value.trim(),group=$('#lifeEditGroup').value,scientificName=$('#lifeEditScientific').value.trim(),notes=$('#lifeEditNotes').value.trim();if(!newName)return;const items=observations.filter(o=>o.kind!=='Seasonal/Event'&&o.name.toLowerCase()===oldName.toLowerCase());items.forEach(o=>{o.name=newName;o.group=group;o._scientificName=scientificName;o._profileNotes=notes});save();renderAll();$('#lifeEditBackdrop').classList.add('hidden');openLifeProfile(newName);await cloudUpdateLifeProfile(oldName,{name:newName,group,scientificName,notes});toast('Life profile updated')});
-$('#closeYearReview').onclick=closeYearReview;$('#yearReviewBackdrop').addEventListener('click',e=>{if(e.target.id==='yearReviewBackdrop')closeYearReview()});$('#printYearReview').onclick=()=>window.print();
+$('#closeYearReview').onclick=closeYearReview;$('#yearReviewBackdrop').addEventListener('click',e=>{if(e.target.id==='yearReviewBackdrop')closeYearReview()});$('#printYearReview').onclick=()=>{document.body.classList.add('printing-year-review');window.print();setTimeout(()=>document.body.classList.remove('printing-year-review'),500)};
 document.addEventListener('click',async e=>{const lb=e.target.closest('[data-lightbox-url]');if(lb&&!e.target.closest('[data-remove-photo]')){openLightbox(lb.dataset.lightboxUrl,lb.dataset.lightboxCaption||'');return}const yearReview=e.target.closest('[data-year-review]');if(yearReview){openYearReview(yearReview.dataset.yearReview);return}const addSpecies=e.target.closest('[data-add-for-species]');if(addSpecies){addObservationForSpecies(addSpecies.dataset.addForSpecies);return}const editProfile=e.target.closest('[data-edit-profile]');if(editProfile){await editLifeProfile(editProfile.dataset.editProfile);return}const editIndividual=e.target.closest('[data-edit-individual]');if(editIndividual){await editIndividualPlant(editIndividual.dataset.species,editIndividual.dataset.editIndividual);return}const edit=e.target.closest('[data-edit]');if(edit){const obs=observations.find(o=>String(o.id)===String(edit.dataset.edit));if(obs)openModal(obs);return}const del=e.target.closest('[data-delete]');if(del){const obs=observations.find(o=>String(o.id)===String(del.dataset.delete));if(!obs)return;if(confirm(`Delete the observation of ${obs.name} from ${fmtDate(obs.date)}? This cannot be undone.`)){observations=observations.filter(o=>String(o.id)!==String(obs.id));save();renderAll();closeLifeProfile();await cloudDeleteObservation(obs.id);toast('Observation deleted')}return}});
 $$('.seg').forEach(b=>b.onclick=()=>{$$('.seg').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#kind').value=b.dataset.kind;updateDetailOptions();updateKindFields()});
 function updateDetailOptions(){

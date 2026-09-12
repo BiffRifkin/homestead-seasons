@@ -120,3 +120,29 @@ button,input,select,textarea{max-width:100%;}
 
 .zone-add-primary{margin:8px 0 6px!important;font-size:16px;padding:15px 18px;box-shadow:0 6px 18px rgba(40,93,59,.18)}
 .zone-add-secondary{margin-top:18px!important;margin-bottom:8px!important}.zone-detail-header{align-items:flex-start}.zone-action-help{text-align:left!important;margin:0 2px 14px!important}
+
+/* v1.7 Year in Review */
+.review-cover{position:relative;overflow:hidden;padding:26px 22px;margin-bottom:14px;border-radius:22px;background:linear-gradient(135deg,rgba(31,86,52,.98),rgba(69,119,77,.86)),url('assets/property.png') center/cover;color:#fff;box-shadow:var(--shadow)}
+.review-cover-kicker{text-transform:uppercase;letter-spacing:.15em;font-size:10px;font-weight:800;opacity:.82;margin-bottom:32px}.review-cover h3{font-size:31px;margin:0 0 7px;color:#fff}.review-cover p{margin:0;line-height:1.45;opacity:.93}.review-cover-line{margin-top:24px;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:14px;opacity:.85}
+.review-stats-six{grid-template-columns:repeat(3,1fr)}.review-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}.review-rank-list{display:grid;gap:7px}.review-rank-row{display:flex;gap:9px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 10px}.review-rank-num{width:27px;height:27px;display:grid;place-items:center;border-radius:50%;background:var(--pale);color:var(--green);font-weight:900;font-size:11px;flex:0 0 auto}.review-rank-row strong{display:block;font-size:12px}.review-rank-row small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.review-bookends{display:grid;grid-template-columns:1fr 1fr;gap:8px}.review-bookends>div{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px}.review-bookends span{display:block;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-size:9px;font-weight:800;margin-bottom:5px}.review-bookends strong{display:block;font-size:12px;line-height:1.35}.review-bookends small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.weather-review-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.weather-review-grid>div{background:var(--soft);border-radius:14px;padding:12px}.weather-review-grid strong{display:block;font-family:Georgia,"Times New Roman",serif;font-size:20px;color:var(--green)}.weather-review-grid span{display:block;font-size:10px;font-weight:800;margin-top:2px}.weather-review-grid small{display:block;color:var(--muted);font-size:9px;margin-top:4px;line-height:1.3}
+.review-month-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.review-month-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px}.review-month-card.quiet{opacity:.68}.review-month-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:7px;border-bottom:1px solid var(--line);margin-bottom:7px}.review-month-head strong{font-family:Georgia,"Times New Roman",serif;color:var(--green)}.review-month-head span{font-size:9px;color:var(--muted)}.review-month-item{padding:5px 0}.review-month-item b{display:block;font-size:10px}.review-month-item small{display:block;font-size:9px;color:var(--muted);margin-top:2px}.review-footer{text-align:center;margin:26px 0 8px;color:var(--muted);font-size:9px;letter-spacing:.06em;text-transform:uppercase}
+@media(max-width:420px){.review-stats-six{grid-template-columns:repeat(2,1fr)}.review-two-col,.review-bookends{grid-template-columns:1fr}.review-month-grid{grid-template-columns:1fr}.review-cover h3{font-size:28px}}
+
+@media print{
+ @page{margin:.45in;size:auto}
+ body{background:#fff!important;color:#17241c!important}
+ body *{visibility:hidden!important}
+ #yearReviewBackdrop,#yearReviewBackdrop *{visibility:visible!important}
+ #yearReviewBackdrop{position:absolute!important;inset:0!important;display:block!important;background:#fff!important;padding:0!important;overflow:visible!important}
+ #yearReviewBackdrop .year-review-modal{position:static!important;width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;border-radius:0!important;box-shadow:none!important;background:#fff!important;padding:0!important}
+ #yearReviewBackdrop .modal-head,#yearReviewBackdrop .profile-actions{display:none!important}
+ #yearReviewContent{display:block!important}
+ .review-cover{-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid}
+ .review-section,.review-stats,.review-two-col,.review-bookends,.weather-review-grid{break-inside:avoid}
+ .review-month-card,.review-list-item,.review-rank-row,.review-stat{break-inside:avoid}
+ .review-photo-btn{break-inside:avoid}
+ .review-photo-grid{grid-template-columns:repeat(4,1fr)}
+ .review-footer{margin-top:18px}
+}
