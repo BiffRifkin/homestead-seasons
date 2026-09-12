@@ -1,1 +1,1 @@
-# nomestead-seasons
+# homestead-seasons
