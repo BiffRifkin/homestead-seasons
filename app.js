@@ -276,7 +276,7 @@ function openYearReview(year){
 }
 function closeYearReview(){$('#yearReviewBackdrop').classList.add('hidden')}
 function renderZones(){const counts=Object.fromEntries(ZONES.map(z=>[z,0]));observations.forEach(o=>{if(counts[o.zone]!==undefined)counts[o.zone]++});$('#zoneList').innerHTML=ZONES.map(z=>`<button class="zone-card ${selectedZone===z?'selected':''}" data-zone-card="${escapeAttr(z)}"><div class="zone-card-icon">📍</div><div class="zone-card-body"><div class="title">${escapeHtml(z)}</div><div class="zone-description">${escapeHtml(ZONE_INFO[z])}</div><div class="meta">${counts[z]||0} observation${counts[z]===1?'':'s'}</div></div><span class="chevron">›</span></button>`).join('');$$('[data-zone-card]').forEach(b=>b.onclick=()=>showZone(b.dataset.zoneCard));$$('.zone-dot').forEach(b=>{const on=selectedZone===b.dataset.zone;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',on?'true':'false')});if(selectedZone)renderZoneDetail()}
-function showZone(z){selectedZone=z;renderZones();$('#zoneDetail').classList.remove('hidden');renderZoneDetail();$('#zoneDetail').scrollIntoView({behavior:'smooth',block:'start'})}
+function showZone(z){selectedZone=z;$('#zoneDetail').classList.remove('hidden');renderZones();renderZoneDetail();setTimeout(()=>$('#zoneDetail').scrollIntoView({behavior:'smooth',block:'start'}),0)}
 function renderZoneDetail(){
  if(!selectedZone)return;
  $('#zoneDetailTitle').textContent=selectedZone;
@@ -386,7 +386,7 @@ $$('#seasonTabs .season-tab').forEach(b=>b.onclick=()=>{currentSeasonTab=b.datas
 $('#journalSearch').oninput=renderJournal;$('#lifeSearch').oninput=renderLife;$$('#journalFilters .chip').forEach(b=>b.onclick=()=>{$$('#journalFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentJournalFilter=b.dataset.filter;renderJournal()});$$('#lifeFilters .chip').forEach(b=>b.onclick=()=>{$$('#lifeFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentLifeFilter=b.dataset.life;renderLife()});
 $$('.zone-dot').forEach(b=>b.onclick=()=>showZone(b.dataset.zone));
 $('#addZoneObservation').onclick=()=>{if(selectedZone)openModal(null,selectedZone)};
-$('#clearZone').onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones()};
+$('#clearZone').onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones();$('#zoneList').scrollIntoView({behavior:'smooth',block:'start'})};
 function openLightbox(url,caption=''){if(!url)return;$('#lightboxImage').src=url;$('#lightboxCaption').textContent=caption;$('#lightboxBackdrop').classList.remove('hidden')}
 function closeLightbox(){$('#lightboxBackdrop').classList.add('hidden');$('#lightboxImage').src=''}
 $('#closeLightbox').onclick=closeLightbox;$('#lightboxBackdrop').addEventListener('click',e=>{if(e.target.id==='lightboxBackdrop')closeLightbox()});
