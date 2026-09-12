@@ -1,4 +1,4 @@
-Homestead Seasons v1.1 — Map + Wildflower Update
+Homestead Seasons v1.2 — Map + Wildflower Update
 
 WHAT'S NEW
 - Supabase sign-in with your Homestead Seasons account.
@@ -26,13 +26,13 @@ Browser local storage is tied to the page location. The most reliable migration 
 6. After the import succeeds, the cloud copy becomes the master record and you can use the hosted version on other devices.
 
 IPHONE / IPAD
-To use one shared app on both devices, v1.1 needs to be hosted at an HTTPS web address. After the PC test succeeds, the next step is publishing these static files to a simple web host and adding Homestead Seasons to the Home Screen on each Apple device.
+To use one shared app on both devices, v1.2 needs to be hosted at an HTTPS web address. After the PC test succeeds, the next step is publishing these static files to a simple web host and adding Homestead Seasons to the Home Screen on each Apple device.
 
 SECURITY
 This app contains only your Supabase public/anon client key. It does NOT contain your password or service-role key. Row Level Security in your Supabase project controls access to your records.
 
 
-v1.1 changes:
+v1.2 changes:
 - Repositioned Upper Meadow, House & Yard, West Woods, Pond, and South Woods map markers/labels based on the approved screenshot.
 - Added Wildflower as a distinct plant category.
 - Existing zone names and database records are unchanged; only map presentation coordinates changed.

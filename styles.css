@@ -35,3 +35,55 @@
 .topbar-actions{display:flex;align-items:center;gap:8px}.sync-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-size:.78rem;font-weight:800;color:var(--green);display:flex;align-items:center;gap:6px}.sync-chip #syncDot{font-size:.62rem}.sync-chip.syncing #syncDot{color:#b5821f}.sync-chip.synced #syncDot{color:#2f8a50}.sync-chip.offline #syncDot{color:#8c8c8c}.sync-chip.error #syncDot{color:#b34d43}
 .cloud-banner{margin:14px 0 18px;background:#fff8df;border:1px solid #e9d695;border-radius:16px;padding:14px;display:flex;gap:14px;justify-content:space-between;align-items:center}.cloud-banner p{margin:4px 0 0;color:var(--muted);font-size:.9rem}.cloud-banner-actions{display:flex;gap:8px;flex-wrap:wrap}.account-modal{max-width:430px}.account-details{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}.account-details span{color:var(--muted);font-size:.85rem}.account-help{font-size:.85rem;line-height:1.4;margin-top:14px}
 @media(max-width:600px){.cloud-banner{align-items:flex-start;flex-direction:column}.sync-chip #syncText{display:none}.sync-chip{padding:9px}}
+
+/* v1.2 iPhone responsive / viewport fit patch */
+html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+body{min-height:100dvh;}
+img,svg,video,canvas{max-width:100%;}
+button,input,select,textarea{max-width:100%;}
+.app-shell{width:100%;max-width:720px;min-height:100dvh;overflow-x:hidden;}
+.topbar{width:100%;max-width:100%;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));padding-top:max(14px,env(safe-area-inset-top));gap:10px;}
+.topbar>div:first-child{min-width:0;flex:1;}
+.topbar h1{overflow-wrap:anywhere;}
+.topbar-actions{flex:0 0 auto;min-width:0;}
+.view{width:100%;max-width:100%;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));}
+.card,.entry,.zone-card,.month-card,.life-card,.review-hero,.review-stat{max-width:100%;min-width:0;}
+.hero{width:100%;max-width:100%;padding:clamp(20px,6vw,28px);}
+.hero-copy{min-width:0;max-width:100%;}
+.hero h2{font-size:clamp(28px,9vw,34px);overflow-wrap:anywhere;}
+.hero p{max-width:100%;}
+.bottom-nav{max-width:720px;width:100%;padding-left:max(6px,env(safe-area-inset-left));padding-right:max(6px,env(safe-area-inset-right));}
+.modal{width:100%;max-width:720px;padding-left:max(15px,env(safe-area-inset-left));padding-right:max(15px,env(safe-area-inset-right));}
+.property-map-wrap,.property-map{max-width:100%;}
+.chips{-webkit-overflow-scrolling:touch;max-width:100%;}
+.two-col>*{min-width:0;}
+.segmented>*{min-width:0;}
+
+@media(max-width:480px){
+  .topbar{padding-bottom:10px;}
+  .topbar h1{font-size:22px;}
+  .topbar .eyebrow{font-size:10px;}
+  .icon-btn{width:40px;height:40px;}
+  .view{padding-top:12px;}
+  .hero{min-height:235px;}
+  .season-summary,.life-summary,.profile-stats{gap:6px;padding:12px;}
+  .season-summary strong,.life-summary strong,.profile-stats strong{font-size:22px;}
+  .two-col{grid-template-columns:1fr;}
+  .segmented{grid-template-columns:1fr;}
+  .seg{font-size:13px;}
+  .page-title{gap:10px;align-items:flex-start;}
+  .page-title>div{min-width:0;}
+  .page-title h2{font-size:27px;}
+  .entry{align-items:flex-start;}
+  .entry .thumb{width:52px;height:52px;}
+  .entry-actions{flex-wrap:wrap;}
+  .monthbar{gap:1px;}
+  .zone-dot span{max-width:120px;white-space:normal;text-align:center;line-height:1.15;}
+}
+
+@media(max-width:360px){
+  .topbar h1{font-size:20px;}
+  .hero h2{font-size:27px;}
+  .nav span{font-size:20px;}
+  .nav{font-size:9px;}
+}
