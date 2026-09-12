@@ -12,3 +12,6 @@ New in this build:
 - Existing single-photo observations remain compatible
 
 Upload all files in this folder to the existing GitHub repository root and commit the changes. GitHub Pages will keep the same address.
+
+
+v1.4.1: Photo controls are now two explicit full-width buttons: Take a Photo and Choose Existing Photos.

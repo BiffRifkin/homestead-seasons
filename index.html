@@ -195,8 +195,10 @@
         <div class="photo-picker">
           <div class="photo-picker-head"><div><strong>Photos</strong><span>Add up to 8 photos to this observation.</span></div><b id="photoCountLabel">0 / 8</b></div>
           <div class="photo-picker-actions">
-            <label class="photo-pick-btn">📷 Take Photo<input id="photoCamera" class="visually-hidden" type="file" accept="image/*" capture="environment" /></label>
-            <label class="photo-pick-btn">▧ Choose Photos<input id="photoLibrary" class="visually-hidden" type="file" accept="image/*" multiple /></label>
+            <button class="photo-pick-btn" id="takePhotoBtn" type="button">📷 Take a Photo</button>
+            <button class="photo-pick-btn" id="choosePhotosBtn" type="button">🖼️ Choose Existing Photos</button>
+            <input id="photoCamera" class="visually-hidden" type="file" accept="image/*" capture="environment" />
+            <input id="photoLibrary" class="visually-hidden" type="file" accept="image/*" multiple />
           </div>
           <div id="photoPickerStatus" class="photo-picker-status hidden"></div>
           <div id="photoPreviewGrid" class="photo-preview-grid"></div>
