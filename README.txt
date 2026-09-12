@@ -1,38 +1,32 @@
-Homestead Seasons v1.2 — Map + Wildflower Update
+HOMESTEAD SEASONS v1.3 — PWA BUILD
+
+This version is prepared specifically to behave like an installed app on iPhone and iPad.
 
 WHAT'S NEW
-- Supabase sign-in with your Homestead Seasons account.
-- Shared cloud observations between devices.
-- Private photo storage in the observation-photos bucket.
-- Local browser cache for quick loading and temporary offline use.
-- Offline changes are queued and retried when the connection returns.
-- Cloud status button in the top-right corner; tap it to Sync Now or Sign Out.
-- Existing v0.9 observations can be imported into the cloud.
+- Proper web-app manifest
+- 192px, 512px, and Apple touch icons
+- Standalone display mode
+- iPhone/iPad Home Screen metadata
+- Service worker for the app shell and offline startup
+- Update-friendly caching so new GitHub Pages deployments are picked up more reliably
+- Existing Supabase cloud sync and data remain unchanged
 
-FIRST TEST ON YOUR PC
-1. Extract this ZIP.
-2. Open index.html in Chrome or Edge.
-3. Sign in with the email/password you created in Supabase.
-4. If the app detects local observations, it will offer Import to Cloud.
-5. Add one test observation. Close and reopen the app and confirm it is still present.
+UPLOAD TO GITHUB PAGES
+1. Open your homestead-seasons repository on GitHub.
+2. Code > Add file > Upload files.
+3. Upload ALL contents of this folder, including assets, manifest.json, and service-worker.js.
+4. Commit the changes.
+5. Wait for GitHub Pages to publish the update.
 
-IMPORTANT IF YOU WANT TO PRESERVE RECORDS STORED IN YOUR CURRENT v0.9 FOLDER
-Browser local storage is tied to the page location. The most reliable migration is:
-1. Make a backup copy of your existing v0.9 folder first.
-2. Keep your existing v0.9 folder in the same place.
-3. Replace the files INSIDE that folder with the files from v1.0 (do not move/rename the folder before the first cloud import).
-4. Open the same index.html you used before.
-5. Sign in and choose Import to Cloud.
-6. After the import succeeds, the cloud copy becomes the master record and you can use the hosted version on other devices.
+INSTALL ON IPHONE OR IPAD
+1. Open the GitHub Pages URL in Safari.
+2. Refresh once after the new version is published.
+3. Tap Share.
+4. Tap Add to Home Screen.
+5. If shown, enable Open as Web App.
+6. Tap Add.
 
-IPHONE / IPAD
-To use one shared app on both devices, v1.2 needs to be hosted at an HTTPS web address. After the PC test succeeds, the next step is publishing these static files to a simple web host and adding Homestead Seasons to the Home Screen on each Apple device.
+IMPORTANT
+If you already have an older Home Screen icon, remove that icon and add it again after v1.3 is live. This ensures iOS uses the new PWA metadata and app icon. Removing the Home Screen icon does NOT delete your Supabase cloud data.
 
-SECURITY
-This app contains only your Supabase public/anon client key. It does NOT contain your password or service-role key. Row Level Security in your Supabase project controls access to your records.
-
-
-v1.2 changes:
-- Repositioned Upper Meadow, House & Yard, West Woods, Pond, and South Woods map markers/labels based on the approved screenshot.
-- Added Wildflower as a distinct plant category.
-- Existing zone names and database records are unchanged; only map presentation coordinates changed.
+Your Supabase database, account, property zones, and observations are not changed by this update.

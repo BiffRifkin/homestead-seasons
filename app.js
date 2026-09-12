@@ -341,4 +341,8 @@ $('#authForm').addEventListener('submit',async e=>{e.preventDefault();$('#authEr
 $('#syncChip').onclick=()=>$('#accountBackdrop').classList.remove('hidden');$('#closeAccount').onclick=()=>$('#accountBackdrop').classList.add('hidden');$('#accountBackdrop').addEventListener('click',e=>{if(e.target.id==='accountBackdrop')$('#accountBackdrop').classList.add('hidden')});$('#syncNow').onclick=async()=>{await refreshFromCloud();toast('Cloud sync complete')};$('#signOut').onclick=async()=>{await sb.auth.signOut();currentUser=null;$('#accountBackdrop').classList.add('hidden');$('#app').classList.add('hidden');$('#authGate').classList.remove('hidden');setSyncStatus('offline','Cloud')};$('#importLocalData').onclick=importLocalToCloud;$('#dismissImport').onclick=()=>$('#cloudImportBanner').classList.add('hidden');
 window.addEventListener('online',()=>{setSyncStatus('syncing','Reconnecting…');refreshFromCloud()});window.addEventListener('offline',()=>setSyncStatus('offline','Offline'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshFromCloud()});
 initAuth();
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').then(reg => reg.update()).catch(() => {});
+  });
+}
