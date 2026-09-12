@@ -100,6 +100,7 @@
           <button class="chip" data-life="Tree">Trees</button>
           <button class="chip" data-life="Shrub">Shrubs</button>
           <button class="chip" data-life="Flower">Flowers</button>
+          <button class="chip" data-life="Wildflower">Wildflowers</button>
           <button class="chip" data-life="Other Plant">Other Plants</button>
         </div>
         <p class="life-hint">Tap any species or plant to open its profile, photos, milestones, zones, and observation history.</p>
@@ -191,8 +192,15 @@
         <label class="milestone-toggle"><span><strong>Seasonal milestone</strong><small>Mark first blooms, arrivals, nesting, frost, peak activity, and other annual landmarks.</small></span><input id="isMilestone" type="checkbox" /></label>
         <label id="milestoneTypeWrap" class="hidden">Milestone type<select id="milestoneType"></select></label>
         <label id="countWrap">Number seen / count<input id="count" type="number" min="1" value="1" /></label>
-        <label>Photo<input id="photo" type="file" accept="image/*" capture="environment" /></label>
-        <img id="photoPreview" class="photo-preview hidden" alt="Selected photo preview" />
+        <div class="photo-picker">
+          <div class="photo-picker-head"><div><strong>Photos</strong><span>Add up to 8 photos to this observation.</span></div><b id="photoCountLabel">0 / 8</b></div>
+          <div class="photo-picker-actions">
+            <label class="photo-pick-btn">📷 Take Photo<input id="photoCamera" class="visually-hidden" type="file" accept="image/*" capture="environment" /></label>
+            <label class="photo-pick-btn">▧ Choose Photos<input id="photoLibrary" class="visually-hidden" type="file" accept="image/*" multiple /></label>
+          </div>
+          <div id="photoPickerStatus" class="photo-picker-status hidden"></div>
+          <div id="photoPreviewGrid" class="photo-preview-grid"></div>
+        </div>
         <label>Notes<textarea id="notes" rows="4" placeholder="What did you notice?"></textarea></label>
         <button class="primary full" id="saveObsBtn" type="submit">Save Observation</button>
       </form>
@@ -221,6 +229,14 @@
       <button id="syncNow" class="primary full">Sync Now</button>
       <button id="signOut" class="secondary full">Sign Out</button>
       <p class="muted account-help">Cloud sync uses your private Supabase account. Local caching keeps the app usable when your connection drops.</p>
+    </div>
+  </div>
+
+  <div id="lightboxBackdrop" class="lightbox-backdrop hidden">
+    <div class="lightbox-shell">
+      <button id="closeLightbox" class="lightbox-close" aria-label="Close photo">×</button>
+      <img id="lightboxImage" alt="Full-size observation photo" />
+      <div id="lightboxCaption" class="lightbox-caption"></div>
     </div>
   </div>
 
