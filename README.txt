@@ -17,3 +17,6 @@ Changes in v1.6.1:
 - Kept Add Observation Here visible for empty zones.
 - Added a helper note explaining that the zone is preselected.
 - Improved scrolling into empty zone detail views.
+
+
+v1.6.2: Property zone pages now show prominent Add Observation Here buttons at both the top and bottom of every zone detail view.

@@ -385,7 +385,7 @@ $('#seasonSpeciesSelect').addEventListener('change',()=>renderSeasonSpecies(mile
 $$('#seasonTabs .season-tab').forEach(b=>b.onclick=()=>{currentSeasonTab=b.dataset.seasonTab;$$('#seasonTabs .season-tab').forEach(x=>x.classList.toggle('active',x===b));$$('.season-panel').forEach(p=>p.classList.toggle('active',p.dataset.seasonPanel===currentSeasonTab))});
 $('#journalSearch').oninput=renderJournal;$('#lifeSearch').oninput=renderLife;$$('#journalFilters .chip').forEach(b=>b.onclick=()=>{$$('#journalFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentJournalFilter=b.dataset.filter;renderJournal()});$$('#lifeFilters .chip').forEach(b=>b.onclick=()=>{$$('#lifeFilters .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentLifeFilter=b.dataset.life;renderLife()});
 $$('.zone-dot').forEach(b=>b.onclick=()=>showZone(b.dataset.zone));
-$('#addZoneObservation').onclick=()=>{if(selectedZone)openModal(null,selectedZone)};
+['#addZoneObservationTop','#addZoneObservationBottom'].forEach(sel=>{const el=$(sel);if(el)el.onclick=()=>{if(selectedZone)openModal(null,selectedZone)}});
 $('#clearZone').onclick=()=>{selectedZone=null;$('#zoneDetail').classList.add('hidden');renderZones();$('#zoneList').scrollIntoView({behavior:'smooth',block:'start'})};
 function openLightbox(url,caption=''){if(!url)return;$('#lightboxImage').src=url;$('#lightboxCaption').textContent=caption;$('#lightboxBackdrop').classList.remove('hidden')}
 function closeLightbox(){$('#lightboxBackdrop').classList.add('hidden');$('#lightboxImage').src=''}

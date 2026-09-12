@@ -117,3 +117,6 @@ button,input,select,textarea{max-width:100%;}
 
 /* v1.6.1 property-zone clarity */
 .zone-detail-actions{position:relative}.zone-action-help{text-align:center;margin-top:7px;line-height:1.35}.zone-detail-section .empty{margin-top:6px}
+
+.zone-add-primary{margin:8px 0 6px!important;font-size:16px;padding:15px 18px;box-shadow:0 6px 18px rgba(40,93,59,.18)}
+.zone-add-secondary{margin-top:18px!important;margin-bottom:8px!important}.zone-detail-header{align-items:flex-start}.zone-action-help{text-align:left!important;margin:0 2px 14px!important}
